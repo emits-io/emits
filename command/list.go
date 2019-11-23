@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"bitbucket.org/emits-io/emits/configuration"
+	"github.com/emits-io/emits/configuration"
 )
 
 func parseList() (err error) {

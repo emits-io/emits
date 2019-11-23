@@ -5,7 +5,7 @@ package version
 const Major int = 2019
 
 // Minor version
-const Minor int = 10
+const Minor int = 11
 
 // Build version
-const Build int = 15
+const Build int = 22

@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"bitbucket.org/emits-io/emits/configuration"
+	"github.com/emits-io/emits/configuration"
 )
 
 func parseInit() (err error) {
@@ -101,14 +101,19 @@ func parseInit() (err error) {
 
 	fmt.Println("")
 	if *noPromptFlag == false {
-		fmt.Println("Type", color("yes", Red, true), "below to add the following task to the configuration file:")
+		fmt.Println("The following task will be added to the configuration file:")
 	} else {
 		fmt.Println("The following task has been added to the configuration file:")
 	}
 	fmt.Println("")
+
 	preview, _ := json.MarshalIndent(task, "", "\t")
 	fmt.Println(fmt.Sprintf("%v", string(preview)))
 	fmt.Println("")
+	if *noPromptFlag == false {
+		fmt.Println("Type", color("yes", Red, true), "below to add this task...")
+		fmt.Println("")
+	}
 	create := false
 	if *noPromptFlag == false {
 		input := strings.TrimSpace(readFlag(reader, "Is this OK?", true))
@@ -128,7 +133,7 @@ func parseInit() (err error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Use", color(fmt.Sprintf("emits run %s", task.Name), Cyan, true), "to emit this task")
+		fmt.Println("Use", color(fmt.Sprintf("emits run %s%s", color("--task ", Magenta, true), color(task.Name, Magenta, false)), Cyan, true), "to emit this task")
 	} else {
 		fmt.Println("Use", color("emits help", Cyan, true), "for more information")
 	}

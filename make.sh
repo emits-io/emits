@@ -49,7 +49,7 @@ if [[ $* == *-build* ]]; then
             file+=".exe"
         fi
         echo "building emits version ${versionmajor}.${versionminor}.${versionbuild} ${goos}/${goarch}"
-        GOOS=${goos} GOARCH=${goarch} go build -o bin/${versionmajor}.${versionminor}.${versionbuild}/${goos}/${goarch}/${file} bitbucket.org/emits-io/emits
+        GOOS=${goos} GOARCH=${goarch} go build -o bin/${versionmajor}.${versionminor}.${versionbuild}/${goos}/${goarch}/${file} github.com/emits-io/emits
         #if [ $? -eq 0 ]; then
         #fi
     done

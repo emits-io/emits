@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/emits-io/emits/configuration"
-	"bitbucket.org/emits-io/emits/data"
+	"github.com/emits-io/emits/configuration"
+	"github.com/emits-io/emits/data"
 )
 
 func parseRun() (err error) {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"bitbucket.org/emits-io/emits/version"
+	"github.com/emits-io/emits/version"
 )
 
 func parseVersion() (err error) {

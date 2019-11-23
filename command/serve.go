@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/emits-io/emits/configuration"
+	"github.com/emits-io/emits/configuration"
 )
 
 func parseServe() (err error) {

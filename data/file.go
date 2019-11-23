@@ -11,7 +11,7 @@ import (
 	"time"
 	"unicode"
 
-	"bitbucket.org/emits-io/emits/configuration"
+	"github.com/emits-io/emits/configuration"
 )
 
 const (
