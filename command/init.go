@@ -133,7 +133,7 @@ func parseInit() (err error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Use", color(fmt.Sprintf("emits run %s", task.Name), Cyan, true), "to emit this task")
+		fmt.Println("Use", color(fmt.Sprintf("emits run %s%s", color("--task ", Magenta, true), color(task.Name, Magenta, false)), Cyan, true), "to emit this task")
 	} else {
 		fmt.Println("Use", color("emits help", Cyan, true), "for more information")
 	}
