@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"bitbucket.org/emits-io/emits/command"
+	"github.com/emits-io/emits/command"
 )
 
 func main() {

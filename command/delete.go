@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"bitbucket.org/emits-io/emits/configuration"
+	"github.com/emits-io/emits/configuration"
 )
 
 func parseDelete() (err error) {
