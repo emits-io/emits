@@ -101,14 +101,19 @@ func parseInit() (err error) {
 
 	fmt.Println("")
 	if *noPromptFlag == false {
-		fmt.Println("Type", color("yes", Red, true), "below to add the following task to the configuration file:")
+		fmt.Println("The following task will be added to the configuration file:")
 	} else {
 		fmt.Println("The following task has been added to the configuration file:")
 	}
 	fmt.Println("")
+
 	preview, _ := json.MarshalIndent(task, "", "\t")
 	fmt.Println(fmt.Sprintf("%v", string(preview)))
 	fmt.Println("")
+	if *noPromptFlag == false {
+		fmt.Println("Type", color("yes", Red, true), "below to add this task...")
+		fmt.Println("")
+	}
 	create := false
 	if *noPromptFlag == false {
 		input := strings.TrimSpace(readFlag(reader, "Is this OK?", true))
