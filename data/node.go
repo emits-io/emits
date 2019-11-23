@@ -125,6 +125,11 @@ func (n *Node) CollapseAppending() {
 			value := c.collapseValues(c.Newline)
 			if c.Newline {
 				value = strings.TrimPrefix(value, "\n")
+				offset := 0
+				offset, value = cleanSpace(value)
+				if offset > 0 {
+					value = strings.ReplaceAll(value, "\n"+strings.Repeat(" ", offset), "\n")
+				}
 			}
 			n.Children[i].Value = value
 			n.Children[i].Children = nil
@@ -140,7 +145,7 @@ func (n *Node) collapseValues(newline bool) (value string) {
 		if newline {
 			linebreak = "\n"
 		}
-		value += linebreak + c.Value
+		value += linebreak + strings.Repeat(" ", c.Index) + c.Value
 		if c.HasChildren() {
 			value += c.collapseValues(newline)
 		}
