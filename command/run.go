@@ -18,6 +18,7 @@ func parseRun() (err error) {
 	helpFlag := flag.Bool("h", false, "")
 	flagSet := flag.NewFlagSet("run", flag.ExitOnError)
 	taskFlag := flagSet.String("task", "", "")
+	groupFlag := flagSet.String("group", "", "")
 	outputFlag := flagSet.String("output", "", "")
 	flagSet.Usage = func() {
 		usageRun()
@@ -26,10 +27,12 @@ func parseRun() (err error) {
 	flagSet.BoolVar(helpFlag, "help", false, "")
 	flagSet.Parse(os.Args[2:])
 
-	name := strings.ToLower(strings.Replace(*taskFlag, " ", "", -1))
-	if len(name) == 0 {
+	taskName := strings.ToLower(strings.Replace(*taskFlag, " ", "", -1))
+	groupName := strings.ToLower(strings.Replace(*groupFlag, " ", "", -1))
+
+	if len(taskName) == 0 && len(groupName) == 0 {
 		usageRun()
-		return fmt.Errorf(color("task argument is required\n", Red, false))
+		return fmt.Errorf(color("task or group argument is required\n", Red, false))
 	}
 
 	config, err := configuration.Open()
@@ -37,39 +40,47 @@ func parseRun() (err error) {
 		return err
 	}
 
-	task := configuration.Task{Name: name}
-
-	if !config.HasTask(task) {
-		return fmt.Errorf(fmt.Sprintf("%s %s", color(task.Name, Red, false), "is not a valid task"))
+	if len(groupName) > 0 {
+		if !config.HasGroup(configuration.Group{Name: groupName}) {
+			return fmt.Errorf(fmt.Sprintf("%s %s", color(groupName, Red, false), "is not a valid group"))
+		}
+		for _, t := range config.GetGroup(configuration.Group{Name: groupName}).Tasks {
+			run(config, t, outputFlag)
+		}
+	} else if len(taskName) > 0 {
+		err := run(config, taskName, outputFlag)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
+}
 
-	task = config.GetTask(task)
-
+func run(config configuration.File, name string, outputFlag *string) (err error) {
+	if !config.HasTask(configuration.Task{Name: name}) {
+		return fmt.Errorf(fmt.Sprintf("%s %s", color(name, Red, false), "is not a valid task"))
+	}
+	task := config.GetTask(configuration.Task{Name: name})
+	fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] %v", time.Now().Format(time.StampMicro), task.Name))
 	matches, err := task.Files()
 	if err != nil {
 		return err
 	}
-
 	output := *outputFlag
 	if len(output) == 0 {
 		output = filepath.Join(emits, task.Name)
 	}
-
 	err = os.RemoveAll(output)
 	if err != nil {
 
 	}
-
 	index := configuration.Index{}
 	indexFilePath := filepath.Join(output, "emits.json")
-
 	plural := "s"
 	if len(matches) == 1 {
 		plural = ""
 	}
-
 	fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] %v of %v file%s processed...", time.Now().Format(time.StampMicro), 0, len(matches), plural))
-
 	for i, file := range matches {
 		filePath := filepath.Join(file)
 		err := data.Write(filePath, task, output)
@@ -104,6 +115,7 @@ func usageRun() {
 	fmt.Println("The arguments are:")
 	fmt.Println("")
 	fmt.Println(argument("task", "name of the configuration task", Magenta))
+	fmt.Println(argument("group", "name of the configuration group", Magenta))
 	fmt.Println(argument("output", "output path to emit data", Magenta))
 	fmt.Println("")
 }
