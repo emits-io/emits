@@ -15,7 +15,8 @@ const (
 
 // File struct
 type File struct {
-	Tasks []Task `json:"task,omitempty"`
+	Groups []Group `json:"group,omitempty"`
+	Tasks  []Task  `json:"task,omitempty"`
 }
 
 // Index struct
@@ -32,6 +33,12 @@ type Task struct {
 	File          Pattern `json:"file"`
 	Keyword       Pattern `json:"keyword"`
 	Configuration Pattern `json:"configuration"`
+}
+
+// Group struct
+type Group struct {
+	Name  string   `json:"name"`
+	Tasks []string `json:"tasks"`
 }
 
 // Sanitize func
@@ -154,6 +161,16 @@ func (f *File) HasTask(task Task) bool {
 	return false
 }
 
+// HasGroup returns a boolean if the group exists or not.
+func (f *File) HasGroup(group Group) bool {
+	for _, g := range f.Groups {
+		if strings.ToLower(strings.TrimSpace(g.Name)) == strings.ToLower(strings.TrimSpace(group.Name)) {
+			return true
+		}
+	}
+	return false
+}
+
 // GetTask returns a Task by name
 func (f *File) GetTask(task Task) Task {
 	for _, t := range f.Tasks {
@@ -162,6 +179,16 @@ func (f *File) GetTask(task Task) Task {
 		}
 	}
 	return Task{}
+}
+
+// GetGroup returns a Group by name
+func (f *File) GetGroup(group Group) Group {
+	for _, g := range f.Groups {
+		if strings.ToLower(strings.TrimSpace(g.Name)) == strings.ToLower(strings.TrimSpace(group.Name)) {
+			return g
+		}
+	}
+	return Group{}
 }
 
 // CreateTask creates a task

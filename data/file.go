@@ -230,9 +230,6 @@ func process(line string, lineNumber int, task configuration.Task, previous Node
 			index++      // index must be greater to create a child node
 			keyword = "" // a keyword is not indended; clear it.
 			value = line[len(escape):]
-			//} else if isCommentBlockOpen {
-			// Separator (Block Open)
-			// isSeparator = true -- this needs to be explicit
 		} else if strings.HasPrefix(value, appending) {
 			if strings.HasSuffix(value, collapsing) {
 				isCollapsing = true
