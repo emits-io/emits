@@ -45,10 +45,10 @@ func parseRun() (err error) {
 			return fmt.Errorf(fmt.Sprintf("%s %s", color(groupName, Red, false), "is not a valid group"))
 		}
 		for _, t := range config.GetGroup(configuration.Group{Name: groupName}).Tasks {
-			task(config, t, outputFlag)
+			run(config, t, outputFlag)
 		}
 	} else if len(taskName) > 0 {
-		err := task(config, taskName, outputFlag)
+		err := run(config, taskName, outputFlag)
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func parseRun() (err error) {
 	return nil
 }
 
-func task(config configuration.File, name string, outputFlag *string) (err error) {
+func run(config configuration.File, name string, outputFlag *string) (err error) {
 	if !config.HasTask(configuration.Task{Name: name}) {
 		return fmt.Errorf(fmt.Sprintf("%s %s", color(name, Red, false), "is not a valid task"))
 	}
