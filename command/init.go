@@ -76,8 +76,13 @@ func parseInit() (err error) {
 	if len(commentClose) == 0 && *noPromptFlag == false || len(commentClose) == 0 && len(commentOpen) > 0 || len(commentClose) == 0 && len(commentLine) > 0 {
 		commentClose = readFlag(reader, "block comment close", len(commentOpen) > 0 || len(commentLine) > 0)
 	}
+	if len(commentClose) > 0 && len(commentOpen) == 0 {
+		if len(commentOpen) == 0 && *noPromptFlag == false || len(commentOpen) == 0 && len(commentClose) > 0 || len(commentOpen) == 0 && len(commentLine) > 0 {
+			commentOpen = readFlag(reader, "block comment open", true)
+		}
+	}
 	if len(commentInline) == 0 && *noPromptFlag == false {
-		commentInline = readFlag(reader, "inline comment", false)
+		commentInline = readFlag(reader, "inline comment", !(len(commentOpen) > 0))
 	}
 	task := configuration.Task{
 		Name:        name,

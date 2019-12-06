@@ -213,6 +213,8 @@ func process(line string, lineNumber int, task configuration.Task, previous Node
 	if previous.Comment.BlockOpen || previous.Comment.BlockLine && !previous.Comment.BlockClose {
 		if len(strings.TrimSpace(task.Comment.Block.Line)) > 0 {
 			isCommentBlockLine, line = cleanPrefix(line, task.Comment.Block.Line, true)
+		} else if len(strings.TrimSpace(task.Comment.Block.Open)) > 0 || len(strings.TrimSpace(task.Comment.Block.Close)) > 0 {
+			isCommentBlockLine = true
 		}
 	}
 	if isCommentBlockOpen || isCommentBlockLine || isCommentBlockClose || isCommentInline {
