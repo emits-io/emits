@@ -36,6 +36,11 @@ type Task struct {
 	Grammar       []string `json:"grammar"`
 }
 
+// Cache struct
+type Cache struct {
+	Grammar []interface{} `json:"-"`
+}
+
 // Group struct
 type Group struct {
 	Name  string   `json:"name"`
@@ -48,11 +53,6 @@ func (t *Task) Sanitize() Task {
 	t.Keyword = t.Keyword.santize()
 	t.Configuration = t.Configuration.santize()
 	return *t
-}
-
-// HasGrammar func
-func (t *Task) HasGrammar() bool {
-	return len(t.Grammar) > 0
 }
 
 // Comment struct

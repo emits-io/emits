@@ -25,6 +25,8 @@ const (
 	fileExtension = ".json"
 	// emits constant referenced by the configuration constant
 	emits = "emits"
+	// grammarFilePrefix constant referenced by the process function
+	grammarFilePrefix = emits + separator + "grammar" + separator
 	// separator constant referenced by process function and configuration constant
 	separator = "."
 	// escape character referenced by the process function
@@ -185,7 +187,7 @@ func keywordValueFlagIndex(line string, index int) (keyword string, value string
 }
 
 // process returns a node structure based on simple string conditions.
-func process(line string, lineNumber int, task configuration.Task, previous Node) Node {
+func process(line string, lineNumber int, task configuration.Task, cache Cache, previous Node) Node {
 	// Options
 	isAppending, isCollapsing, isNewline, isConfiguration, isSeparator, isCommentInline, isCommentBlockOpen, isCommentBlockClose, isCommentBlockLine := false, false, false, false, false, false, false, false, false
 	keyword, value := "", ""
@@ -264,11 +266,11 @@ func process(line string, lineNumber int, task configuration.Task, previous Node
 			BlockClose: isCommentBlockClose,
 			Inline:     isCommentInline,
 		},
-	}, task)
+	}, task, cache)
 }
 
 // Parse returns a node tree and configuration node array.
-func Parse(name string, task configuration.Task) (tree Node, config []Node, err error) {
+func Parse(name string, task configuration.Task, cache Cache) (tree Node, config []Node, err error) {
 	file, err := os.Open(name)
 	if err != nil {
 		return tree, config, err
@@ -280,7 +282,7 @@ func Parse(name string, task configuration.Task) (tree Node, config []Node, err 
 	for scanner.Scan() {
 		line++
 		text := scanner.Text()
-		node := process(text, line, task, previousNode)
+		node := process(text, line, task, cache, previousNode)
 		previousNode = node
 		if node.IsComment() {
 			// Data
@@ -339,8 +341,9 @@ func Parse(name string, task configuration.Task) (tree Node, config []Node, err 
 }
 
 // Write the emits json file to an optional prefix directory.
-func Write(name string, task configuration.Task, prefixDirectory ...string) (err error) {
-	nodes, configurations, err := Parse(name, task)
+func Write(name string, task configuration.Task, cache Cache, prefixDirectory ...string) (err error) {
+
+	nodes, configurations, err := Parse(name, task, cache)
 
 	if len(task.Keyword.Include) > 0 && !nodes.HasInstanceOfKeyword(task.Keyword.Include) {
 		err = fmt.Errorf("keyword include not found")
@@ -396,9 +399,9 @@ func Write(name string, task configuration.Task, prefixDirectory ...string) (err
 	return err
 }
 
-func processGrammar(n Node, task configuration.Task) (node Node) {
-	if !n.HasKeyword() && n.HasValue() && task.HasGrammar() {
-		n.Value = "process grammar: " + n.Value
+func processGrammar(n Node, task configuration.Task, cache Cache) (node Node) {
+	if !n.HasKeyword() && n.HasValue() && cache.HasGrammar() {
+		return cache.ProcessGrammar(n)
 	}
 	return n
 }
