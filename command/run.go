@@ -66,7 +66,7 @@ func run(config configuration.File, name string, outputFlag *string) (err error)
 
 	cache := data.Cache{}
 	for _, grammar := range task.Grammar {
-		g, err := data.LoadGrammar(grammar)
+		g, err := data.CacheGrammar(grammar)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("[\x1b[31;1m%s\x1b[0m] failed to load %v grammar", time.Now().Format(time.StampMicro), grammar))
 		} else {

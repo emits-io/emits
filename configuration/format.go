@@ -36,11 +36,6 @@ type Task struct {
 	Grammar       []string `json:"grammar"`
 }
 
-// Cache struct
-type Cache struct {
-	Grammar []interface{} `json:"-"`
-}
-
 // Group struct
 type Group struct {
 	Name  string   `json:"name"`

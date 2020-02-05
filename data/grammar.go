@@ -47,8 +47,8 @@ type GrammarPeek struct {
 	Behind string `json:"-"`
 }
 
-// LoadGrammar func
-func LoadGrammar(name string) (grammar Grammar, err error) {
+// CacheGrammar func
+func CacheGrammar(name string) (grammar Grammar, err error) {
 	file, err := os.Open(grammarFilePrefix + name + fileExtension)
 	if err != nil {
 		return grammar, err
