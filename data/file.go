@@ -247,8 +247,7 @@ func process(line string, lineNumber int, task configuration.Task, previous Node
 			isCommentInline = true
 		}
 	}
-
-	return Node{
+	return processGrammar(Node{
 		Line:          lineNumber,
 		Index:         index,
 		Keyword:       keyword,
@@ -265,7 +264,7 @@ func process(line string, lineNumber int, task configuration.Task, previous Node
 			BlockClose: isCommentBlockClose,
 			Inline:     isCommentInline,
 		},
-	}
+	}, task)
 }
 
 // Parse returns a node tree and configuration node array.
@@ -395,4 +394,11 @@ func Write(name string, task configuration.Task, prefixDirectory ...string) (err
 		return file.write(filepath.Join(filepath.Join(prefixDirectory...), name+fileExtension))
 	}
 	return err
+}
+
+func processGrammar(n Node, task configuration.Task) (node Node) {
+	if !n.HasKeyword() && n.HasValue() && task.HasGrammar() {
+		n.Value = "process grammar: " + n.Value
+	}
+	return n
 }

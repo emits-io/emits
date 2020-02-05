@@ -50,6 +50,11 @@ func (t *Task) Sanitize() Task {
 	return *t
 }
 
+// HasGrammar func
+func (t *Task) HasGrammar() bool {
+	return len(t.Grammar) > 0
+}
+
 // Comment struct
 type Comment struct {
 	Block  Block  `json:"block,omitempty"`
