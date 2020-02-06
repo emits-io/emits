@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 // Grammar structure is used to read/write the json file format.
@@ -62,6 +63,28 @@ func CacheGrammar(name string) (grammar Grammar, err error) {
 		return grammar, err
 	}
 	return grammar, nil
+}
+
+func (g *Grammar) hasExtension(extension string) bool {
+	for _, e := range g.Extension {
+		if e == extension {
+			return true
+		}
+	}
+	return false
+}
+
+func (g *Grammar) process(n Node) Node {
+	if strings.HasPrefix(n.Value, "@foo") {
+		n.Keyword = "foos"
+		n.AppendChild(Node{
+			Keyword: "foo",
+			Value:   strings.TrimSpace(strings.Replace(n.Value, "@foo", "", -1)),
+			Index:   n.Index + 1,
+		})
+		n.Value = ""
+	}
+	return n
 }
 
 func (g *Grammar) setPeek()   {}

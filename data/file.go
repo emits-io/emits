@@ -187,7 +187,7 @@ func keywordValueFlagIndex(line string, index int) (keyword string, value string
 }
 
 // process returns a node structure based on simple string conditions.
-func process(line string, lineNumber int, task configuration.Task, cache Cache, previous Node) Node {
+func process(name string, line string, lineNumber int, task configuration.Task, cache Cache, previous Node) Node {
 	// Options
 	isAppending, isCollapsing, isNewline, isConfiguration, isSeparator, isCommentInline, isCommentBlockOpen, isCommentBlockClose, isCommentBlockLine := false, false, false, false, false, false, false, false, false
 	keyword, value := "", ""
@@ -266,7 +266,7 @@ func process(line string, lineNumber int, task configuration.Task, cache Cache, 
 			BlockClose: isCommentBlockClose,
 			Inline:     isCommentInline,
 		},
-	}, task, cache)
+	}, task, cache, filepath.Ext(filepath.Base(name)))
 }
 
 // Parse returns a node tree and configuration node array.
@@ -282,7 +282,7 @@ func Parse(name string, task configuration.Task, cache Cache) (tree Node, config
 	for scanner.Scan() {
 		line++
 		text := scanner.Text()
-		node := process(text, line, task, cache, previousNode)
+		node := process(name, text, line, task, cache, previousNode)
 		previousNode = node
 		if node.IsComment() {
 			// Data
@@ -399,9 +399,9 @@ func Write(name string, task configuration.Task, cache Cache, prefixDirectory ..
 	return err
 }
 
-func processGrammar(n Node, task configuration.Task, cache Cache) (node Node) {
+func processGrammar(n Node, task configuration.Task, cache Cache, extension string) (node Node) {
 	if !n.HasKeyword() && n.HasValue() && cache.HasGrammar() {
-		return cache.ProcessGrammar(n)
+		return cache.ProcessGrammar(n, extension)
 	}
 	return n
 }

@@ -1,7 +1,5 @@
 package data
 
-import "fmt"
-
 // Cache struct
 type Cache struct {
 	Grammar []Grammar
@@ -13,9 +11,11 @@ func (c *Cache) HasGrammar() bool {
 }
 
 // ProcessGrammar func
-func (c *Cache) ProcessGrammar(n Node) Node {
+func (c *Cache) ProcessGrammar(n Node, extension string) Node {
 	for _, grammar := range c.Grammar {
-		n.Value = fmt.Sprintf("%v :: %v", grammar.Name, n.Value)
+		if grammar.hasExtension(extension) {
+			n = grammar.process(n)
+		}
 	}
 	return n
 }
