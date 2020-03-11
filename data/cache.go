@@ -2,19 +2,19 @@ package data
 
 // Cache struct
 type Cache struct {
-	Grammar []Grammar
+	GrammarFile []GrammarFile
 }
 
 // HasGrammar func
 func (c *Cache) HasGrammar() bool {
-	return len(c.Grammar) > 0
+	return len(c.GrammarFile) > 0
 }
 
 // ProcessGrammar func
 func (c *Cache) ProcessGrammar(n Node, extension string) Node {
-	for _, grammar := range c.Grammar {
-		if grammar.hasExtension(extension) {
-			n = grammar.process(n)
+	for _, grammarFile := range c.GrammarFile {
+		if grammarFile.hasExtension(extension) {
+			n = grammarFile.process(n)
 		}
 	}
 	return n

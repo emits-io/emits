@@ -4,52 +4,19 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"strings"
+	"regexp"
 )
 
-// Grammar structure is used to read/write the json file format.
-type Grammar struct {
-	Name        string        `json:"name,omitempty"`
-	Description string        `json:"description,omitempty"`
-	Extension   []string      `json:"extension,omitempty"`
-	Grammar     []GrammarData `json:"grammar,omitempty"`
+// GrammarFile structure is used to read/write the json file format.
+type GrammarFile struct {
+	Name        string    `json:"name,omitempty"`
+	Description string    `json:"description,omitempty"`
+	Extension   []string  `json:"extension,omitempty"`
+	Grammar     []Grammar `json:"grammar,omitempty"`
 }
 
-// GrammarData structure
-type GrammarData struct {
-	Option GrammarOption  `json:"option,omitempty"`
-	Group  []GrammarGroup `json:"group,omitempty"`
-}
-
-// GrammarOption structure
-type GrammarOption struct {
-	GroupKeyword    string `json:"groupKeyword"`
-	GroupByKeyword  bool   `json:"groupByKeyword"`
-	AllowEmptyValue bool   `json:"allowEmptValue"`
-}
-
-// GrammarGroup structure
-type GrammarGroup struct {
-	Source  string         `json:"-"`
-	Peek    []GrammarPeek  `json:"-"`
-	Pattern string         `json:"pattern,omitempty"`
-	Matches []GrammarMatch `json:"match,omitempty"`
-}
-
-// GrammarMatch structure
-type GrammarMatch struct {
-	Grammar Grammar `json:"grammar,omitempty"`
-	Node    Node    `json:"node,omitempty"`
-}
-
-// GrammarPeek structure stores lines ahead and behind the current (source) line.
-type GrammarPeek struct {
-	Ahead  string `json:"-"`
-	Behind string `json:"-"`
-}
-
-// CacheGrammar func
-func CacheGrammar(name string) (grammar Grammar, err error) {
+// CacheGrammarFile func
+func CacheGrammarFile(name string) (grammar GrammarFile, err error) {
 	file, err := os.Open(grammarFilePrefix + name + fileExtension)
 	if err != nil {
 		return grammar, err
@@ -65,7 +32,8 @@ func CacheGrammar(name string) (grammar Grammar, err error) {
 	return grammar, nil
 }
 
-func (g *Grammar) hasExtension(extension string) bool {
+// hasExtension func
+func (g *GrammarFile) hasExtension(extension string) bool {
 	for _, e := range g.Extension {
 		if e == extension {
 			return true
@@ -74,24 +42,53 @@ func (g *Grammar) hasExtension(extension string) bool {
 	return false
 }
 
-func (g *Grammar) process(n Node) Node {
-	if strings.HasPrefix(n.Value, "@foo") {
-		n.Keyword = "foos"
-		n.AppendChild(Node{
-			Keyword: "foo",
-			Value:   strings.TrimSpace(strings.Replace(n.Value, "@foo", "", -1)),
-			Index:   n.Index + 1,
-		})
-		n.Value = ""
+// Grammar structure
+type Grammar struct {
+	Pattern string           `json:"pattern,omitempty"`
+	Match   map[string]Match `json:"match,omitempty"`
+}
+
+func setPatternResults(g Grammar, pattern string, source string) map[string]string {
+	r := regexp.MustCompile(pattern)
+	data := r.FindStringSubmatch(source)
+	name := r.SubexpNames()
+	result := make(map[string]string)
+	for match := range data {
+		result[name[match]] = data[match]
+	}
+	return result
+}
+
+func setPatternMatch(g Grammar, node *Node, source string, pattern string, result map[string]string) *Node {
+	for key, val := range g.Match {
+		if len(val.Set) > 0 {
+			switch val.Set {
+			case "value":
+				node.Value = result[key]
+			case "keyword":
+				node.Keyword = result[key]
+			}
+		} else if len(result[key]) > 0 {
+			setPatternMatch(val.Grammar, node, result[key], val.Grammar.Pattern, setPatternResults(val.Grammar, val.Grammar.Pattern, result[key]))
+		}
+	}
+	return node
+}
+
+// Match struct
+type Match struct {
+	Grammar Grammar `json:"grammar,omitempty"`
+	Set     string  `json:"set,omitempty"`
+}
+
+func (g *GrammarFile) process(n Node) Node {
+	for _, grammar := range g.Grammar {
+		setPatternMatch(grammar, &n, n.Value, grammar.Pattern, setPatternResults(grammar, grammar.Pattern, n.Value))
 	}
 	return n
 }
 
-func (g *Grammar) setPeek()   {}
-func (g *Grammar) getPeek()   {}
-func (g *Grammar) setSource() {}
-func (g *Grammar) mergeNodeValues() {
-	// for _, group := range g.Group {
-	// 	// group.Source
-	// }
-}
+func (g *Grammar) setPeek()         {}
+func (g *Grammar) getPeek()         {}
+func (g *Grammar) setSource()       {}
+func (g *Grammar) mergeNodeValues() {}
