@@ -1,0 +1,25 @@
+{
+    "name": "test grammar",
+    "description": "this is a test",
+    "extension": [".scss"],
+    "grammar": [
+        {
+            "pattern": "@param (?P<pname>.+?) (?P<pvalue>.+)",
+            "match": {
+                "pname": {
+                    "grammar": {
+                        "pattern": "(foo)?(?P<foo>(.+)?)",
+                        "match": {
+                            "foo": {
+                                "set": "keyword"
+                            }
+                        }
+                    }
+                },
+                "pvalue": {
+                    "set": "value"
+                }
+            }
+        }
+    ]
+}
