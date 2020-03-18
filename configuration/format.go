@@ -26,13 +26,14 @@ type Index struct {
 
 // Task struct
 type Task struct {
-	Name          string  `json:"name"`
-	Description   string  `json:"description"`
-	Comment       Comment `json:"comment"`
-	Source        bool    `json:"source"`
-	File          Pattern `json:"file"`
-	Keyword       Pattern `json:"keyword"`
-	Configuration Pattern `json:"configuration"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description"`
+	Comment       Comment  `json:"comment"`
+	Source        bool     `json:"source"`
+	File          Pattern  `json:"file"`
+	Keyword       Pattern  `json:"keyword"`
+	Configuration Pattern  `json:"configuration"`
+	Grammar       []string `json:"grammar"`
 }
 
 // Group struct
