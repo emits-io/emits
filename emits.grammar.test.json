@@ -7,17 +7,34 @@
             "pattern": "@param (?P<pname>.+?) (?P<pvalue>.+)",
             "match": {
                 "pname": {
-                    "grammar": {
-                        "pattern": "(foo)?(?P<foo>(.+)?)",
-                        "match": {
-                            "foo": {
-                                "set": "keyword"
+                    "grammar": [
+                        {
+                            "pattern": "(?P<any>(.+)?)",
+                            "match": {
+                                "any": {
+                                    "set": {
+                                        "keyword": "{{any}}"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "pattern": "^(?P<flag>[d|v]oo)(?P<foo>(.+)?)",
+                            "match": {
+                                "foo": {
+                                    "set": {
+                                        "keyword": "prefix{{foo}}",
+                                        "flags": "test,was{{flag}}"
+                                    }
+                                }
                             }
                         }
-                    }
+                    ]
                 },
                 "pvalue": {
-                    "set": "value"
+                    "set": {
+                        "value": "{{pvalue}}"
+                    }
                 }
             }
         }

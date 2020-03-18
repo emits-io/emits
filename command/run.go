@@ -61,21 +61,18 @@ func run(config configuration.File, name string, outputFlag *string) (err error)
 		return fmt.Errorf(fmt.Sprintf("%s %s", color(name, Red, false), "is not a valid task"))
 	}
 	task := config.GetTask(configuration.Task{Name: name})
-
-	//fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] %v", time.Now().Format(time.StampMicro), "initializing cache"))
-
+	start := time.Now()
+	fmt.Println(fmt.Sprintf("[%s] Starting Task '%v'", color(time.Now().Format(time.Stamp), Yellow, false), color(task.Name, Yellow, false)))
 	cache := data.Cache{}
 	for _, grammar := range task.Grammar {
 		g, err := data.CacheGrammarFile(grammar)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("[\x1b[31;1m%s\x1b[0m] failed to load %v grammar", time.Now().Format(time.StampMicro), grammar))
+			fmt.Println(fmt.Sprintf("[%s] Grammer Error '%v'", color(time.Now().Format(time.Stamp), Red, false), color(grammar, Red, false)))
 		} else {
-			fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] loaded %v grammar", time.Now().Format(time.StampMicro), grammar))
+			fmt.Println(fmt.Sprintf("[%s] Using Grammer '%v'", color(time.Now().Format(time.Stamp), Yellow, false), color(grammar, Yellow, false)))
 			cache.GrammarFile = append(cache.GrammarFile, g)
 		}
 	}
-
-	fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] running %v task", time.Now().Format(time.StampMicro), task.Name))
 	matches, err := task.Files()
 	if err != nil {
 		return err
@@ -90,32 +87,28 @@ func run(config configuration.File, name string, outputFlag *string) (err error)
 	}
 	index := configuration.Index{}
 	indexFilePath := filepath.Join(output, "emits.json")
-	plural := "s"
-	if len(matches) == 1 {
-		plural = ""
-	}
-	fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] %v of %v file%s processed...", time.Now().Format(time.StampMicro), 0, len(matches), plural))
-
-	for i, file := range matches {
+	for _, file := range matches {
 		filePath := filepath.Join(file)
 		err := data.Write(filePath, task, cache, output)
 		if err != nil {
-			//fmt.Println(fmt.Sprintf("[\x1b[31;1m%s\x1b[0m] ✕ %s ➤ %s", time.Now().Format(time.StampMicro), filePath, err))
+			fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", color(time.Now().Format(time.Stamp), Red, false), color("./"+filePath, Red, false)))
 		} else {
-			fmt.Print("\r\033[1A\033[0K")
-			fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] %v of %v file%s processed...", time.Now().Format(time.StampMicro), i+1, len(matches), plural))
-			index.Files = append(index.Files, filepath.Join(output, filePath+".json"))
+			filename := filepath.Join(output, filePath+".json")
+			index.Files = append(index.Files, filename)
+			fmt.Println(fmt.Sprintf("[%s] Emitting File '%v'", color(time.Now().Format(time.Stamp), Yellow, false), color("./"+filename, Yellow, false)))
 		}
 	}
 	file, err := json.MarshalIndent(index, "", "\t")
 	if err != nil {
-		//fmt.Println(fmt.Sprintf("[\x1b[31;1m%s\x1b[0m] ✕ %s", time.Now().Format(time.StampMicro), indexFilePath))
+		fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", color(time.Now().Format(time.Stamp), Red, false), color("./"+indexFilePath, Red, false)))
 	} else {
 		err = ioutil.WriteFile(indexFilePath, file, 0644)
 		if err != nil {
-			//fmt.Println(fmt.Sprintf("[\x1b[31;1m%s\x1b[0m] ✕ %s", time.Now().Format(time.StampMicro), indexFilePath))
+			fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", color(time.Now().Format(time.Stamp), Red, false), color("./"+indexFilePath, Red, false)))
 		} else {
-			fmt.Println(fmt.Sprintf("[\x1b[32;1m%s\x1b[0m] complete", time.Now().Format(time.StampMicro)))
+			t := time.Now()
+			elapsed := t.Sub(start)
+			fmt.Println(fmt.Sprintf("[%s] Finished Task '%v' after %v", color(time.Now().Format(time.Stamp), Yellow, false), color(task.Name, Yellow, false), elapsed))
 		}
 	}
 	return nil
