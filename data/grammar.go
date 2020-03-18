@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"regexp"
+	"strconv"
+	"strings"
 )
 
 // GrammarFile structure is used to read/write the json file format.
@@ -13,6 +15,18 @@ type GrammarFile struct {
 	Description string    `json:"description,omitempty"`
 	Extension   []string  `json:"extension,omitempty"`
 	Grammar     []Grammar `json:"grammar,omitempty"`
+}
+
+// Grammar structure
+type Grammar struct {
+	Pattern string           `json:"pattern,omitempty"`
+	Match   map[string]Match `json:"match,omitempty"`
+}
+
+// Match struct
+type Match struct {
+	Grammar []Grammar         `json:"grammar,omitempty"`
+	Set     map[string]string `json:"set,omitempty"`
 }
 
 // CacheGrammarFile func
@@ -42,43 +56,70 @@ func (g *GrammarFile) hasExtension(extension string) bool {
 	return false
 }
 
-// Grammar structure
-type Grammar struct {
-	Pattern string           `json:"pattern,omitempty"`
-	Match   map[string]Match `json:"match,omitempty"`
-}
-
 func setPatternResults(g Grammar, pattern string, source string) map[string]string {
 	r := regexp.MustCompile(pattern)
-	data := r.FindStringSubmatch(source)
-	name := r.SubexpNames()
-	result := make(map[string]string)
-	for match := range data {
-		result[name[match]] = data[match]
+	m := r.MatchString(source)
+	if m {
+		data := r.FindStringSubmatch(source)
+		name := r.SubexpNames()
+		result := make(map[string]string)
+		for match := range data {
+			result[strings.ToLower(name[match])] = data[match]
+		}
+		return result
 	}
-	return result
+	return nil
 }
 
 func setPatternMatch(g Grammar, node *Node, source string, pattern string, result map[string]string) *Node {
 	for key, val := range g.Match {
 		if len(val.Set) > 0 {
-			switch val.Set {
-			case "value":
-				node.Value = result[key]
-			case "keyword":
-				node.Keyword = result[key]
+			for set, value := range val.Set {
+				r := regexp.MustCompile("{{(\\w+)}}")
+				matches := r.FindAllStringSubmatch(value, -1)
+				for _, match := range matches {
+					value = strings.ReplaceAll(value, match[0], result[match[1]])
+				}
+				switch set {
+				case "flags":
+					node.Flags = strings.Split(value, ",")
+				case "index":
+					index, err := strconv.ParseInt(value, 10, 0)
+					if err == nil {
+						node.Index = int(index)
+					}
+				case "keyword":
+					node.Keyword = value
+				case "line":
+					line, err := strconv.ParseInt(value, 10, 0)
+					if err == nil {
+						node.Line = int(line)
+					} else {
+						node.Line = 0
+					}
+				case "parent":
+					parent, err := strconv.ParseInt(value, 10, 0)
+					if err == nil {
+						node.Parent = int(parent)
+					} else {
+						node.Parent = 0
+					}
+				case "separator":
+					node.Separator = strings.ToLower(value) == "true"
+				case "value":
+					node.Value = value
+				}
 			}
 		} else if len(result[key]) > 0 {
-			setPatternMatch(val.Grammar, node, result[key], val.Grammar.Pattern, setPatternResults(val.Grammar, val.Grammar.Pattern, result[key]))
+			for _, grammar := range val.Grammar {
+				results := setPatternResults(grammar, grammar.Pattern, result[key])
+				if results != nil {
+					setPatternMatch(grammar, node, result[key], grammar.Pattern, results)
+				}
+			}
 		}
 	}
 	return node
-}
-
-// Match struct
-type Match struct {
-	Grammar Grammar `json:"grammar,omitempty"`
-	Set     string  `json:"set,omitempty"`
 }
 
 func (g *GrammarFile) process(n Node) Node {
@@ -87,8 +128,3 @@ func (g *GrammarFile) process(n Node) Node {
 	}
 	return n
 }
-
-func (g *Grammar) setPeek()         {}
-func (g *Grammar) getPeek()         {}
-func (g *Grammar) setSource()       {}
-func (g *Grammar) mergeNodeValues() {}
