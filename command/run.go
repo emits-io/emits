@@ -45,9 +45,14 @@ func parseRun() (err error) {
 		if !config.HasGroup(configuration.Group{Name: groupName}) {
 			return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' is not a valid group", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(groupName, colorize.Red, false)))
 		}
+		start := time.Now()
+		fmt.Println(fmt.Sprintf("[%s] Starting Group '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc(groupName, colorize.Yellow, false)))
 		for _, t := range config.GetGroup(configuration.Group{Name: groupName}).Tasks {
 			run(config, t, outputFlag)
 		}
+		t := time.Now()
+		elapsed := t.Sub(start)
+		fmt.Println(fmt.Sprintf("[%s] Finished Group '%v' after %v", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc(groupName, colorize.Yellow, false), elapsed))
 	} else if len(taskName) > 0 {
 		err := run(config, taskName, outputFlag)
 		if err != nil {
