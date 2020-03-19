@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
 
@@ -22,7 +24,7 @@ func parseDelete() (err error) {
 
 	name := strings.ToLower(strings.Replace(*taskFlag, " ", "", -1))
 	if len(name) == 0 {
-		return fmt.Errorf("\x1b[31;1m%s\x1b[0m", "a task argument is required")
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("a task argument is required", colorize.Red, false)))
 	}
 
 	config, err := configuration.Open()
@@ -33,7 +35,7 @@ func parseDelete() (err error) {
 	task := configuration.Task{Name: name}
 
 	if !config.HasTask(task) {
-		return fmt.Errorf("`\x1b[31;1m%s\x1b[0m` \x1b[31;1mis not a valid task\x1b[0m", name)
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' is not a valid task", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(name, colorize.Red, false)))
 	}
 
 	ok := config.DeleteTask(task)
@@ -43,7 +45,7 @@ func parseDelete() (err error) {
 			return err
 		}
 	} else {
-		return fmt.Errorf("task could not be removed")
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' could not be removed", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(name, colorize.Red, false)))
 	}
 	fmt.Println(fmt.Sprintf("`%v` task configuration deleted", task.Name))
 	return nil
@@ -53,10 +55,10 @@ func usageDelete() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println("")
-	fmt.Println(color("emits delete", Cyan, true), color("[argument]", Magenta, true))
+	fmt.Println(colorize.Printc("emits delete", colorize.Cyan, true), colorize.Printc("[argument]", colorize.Magenta, true))
 	fmt.Println("")
 	fmt.Println("The argument is:")
 	fmt.Println("")
-	fmt.Println(argument("task", "name of the configuration task", Magenta))
+	fmt.Println(argument("task", "name of the configuration task", colorize.Magenta))
 	fmt.Println("")
 }

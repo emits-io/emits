@@ -5,35 +5,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
-
-type uniqueOperator func(value string, config configuration.File) bool
-
-// Color 8-bittype
-type Color string
 
 const (
 	// emits constant
 	emits = "emits"
-	//Black Color
-	Black Color = "\u001b[30"
-	//Red Color
-	Red Color = "\u001b[31"
-	//Green Color
-	Green Color = "\u001b[32"
-	//Yellow Color
-	Yellow Color = "\u001b[33"
-	//Blue Color
-	Blue Color = "\u001b[34"
-	//Magenta Color
-	Magenta Color = "\u001b[35"
-	//Cyan Color
-	Cyan Color = "\u001b[36"
-	//White Color
-	White Color = "\u001b[37"
 )
+
+type uniqueOperator func(value string, config configuration.File) bool
 
 var isUniqueTaskName uniqueOperator = func(value string, config configuration.File) bool {
 	return !config.HasTask(configuration.Task{Name: value})
@@ -63,14 +46,14 @@ func Parse(command string) (err error) {
 	case "version":
 		return parseVersion()
 	}
-	return fmt.Errorf("emits %s: unknown command", command)
+	return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' is not a known command", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(command, colorize.Red, false)))
 }
 
 func uniqueFlag(rd *bufio.Reader, name string, message string, required bool, value string, config configuration.File, unique uniqueOperator) (result string) {
 	if !unique(value, config) {
-		indicator := color("optinal", Yellow, true)
+		indicator := colorize.Printc("optinal", colorize.Yellow, true)
 		if required {
-			indicator = color("required", Red, true)
+			indicator = colorize.Printc("required", colorize.Red, true)
 		}
 		return uniqueFlag(rd, name, message, required, readFlag(rd, fmt.Sprintf("\r\033[1A\033[0K%s %s: `\u001b[33m%s\x1b[0m` \u001b[33m%s\x1b[0m\n%s", name, indicator, value, message, name), required), config, unique)
 	}
@@ -78,9 +61,9 @@ func uniqueFlag(rd *bufio.Reader, name string, message string, required bool, va
 }
 
 func readFlag(rd *bufio.Reader, name string, required bool) string {
-	indicator := color("optional", Yellow, true)
+	indicator := colorize.Printc("optional", colorize.Yellow, true)
 	if required {
-		indicator = color("required", Red, true)
+		indicator = colorize.Printc("required", colorize.Red, true)
 	}
 	fmt.Printf("%s %s: ", name, indicator)
 	input, _ := rd.ReadString('\n')
@@ -91,26 +74,10 @@ func readFlag(rd *bufio.Reader, name string, required bool) string {
 	return input
 }
 
-func argument(name string, description string, c Color) string {
-	return fmt.Sprintf("%s%s %s %s", color("--", c, false), color(name, c, true), color("•", White, false), description)
+func argument(name string, description string, c colorize.Color) string {
+	return fmt.Sprintf("%s%s %s %s", colorize.Printc("--", c, false), colorize.Printc(name, c, true), colorize.Printc("•", colorize.White, false), description)
 }
 
-func command(name string, description string, c Color) string {
-	return fmt.Sprintf("%s %s %s", color(name, c, true), color("•", White, false), description)
-}
-
-func underline(text string) string {
-	return fmt.Sprintf("\u001b[4m%s\u001b[0m", text)
-}
-
-func bold(text string) string {
-	return fmt.Sprintf("\u001b[1m%s\u001b[0m", text)
-}
-
-func color(text string, color Color, bright bool) string {
-	brightColor := ""
-	if bright {
-		brightColor = ";1"
-	}
-	return fmt.Sprintf("%s%sm%s\u001b[0m", color, brightColor, text)
+func command(name string, description string, c colorize.Color) string {
+	return fmt.Sprintf("%s %s %s", colorize.Printc(name, c, true), colorize.Printc("•", colorize.White, false), description)
 }

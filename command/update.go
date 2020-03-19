@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
 
@@ -41,7 +43,7 @@ func parseUpdate() (err error) {
 	name := strings.ToLower(strings.Replace(*taskFlag, " ", "", -1))
 	if len(name) == 0 {
 		usageUpdate()
-		return fmt.Errorf(color("task argument is required\n", Red, false))
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("task argument is required", colorize.Red, false)))
 	}
 
 	config, err := configuration.Open()
@@ -52,7 +54,7 @@ func parseUpdate() (err error) {
 	task := configuration.Task{Name: name}
 
 	if !config.HasTask(task) {
-		return fmt.Errorf(fmt.Sprintf("%s %s", color(task.Name, Red, false), "is not a valid task"))
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' is not a valid task", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(task.Name, colorize.Red, false)))
 	}
 
 	reader := bufio.NewReader(os.Stdin)
@@ -125,7 +127,7 @@ func parseUpdate() (err error) {
 	task = task.Sanitize()
 
 	if *noPromptFlag == false {
-		fmt.Println("Type", color("yes", Red, true), "below to add the following task to the configuration file:")
+		fmt.Println("Type", colorize.Printc("yes", colorize.Red, true), "below to add the following task to the configuration file:")
 	} else {
 		fmt.Println("The following task has been added to the configuration file:")
 	}
@@ -149,9 +151,9 @@ func parseUpdate() (err error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Use", color(fmt.Sprintf("emits run %s", task.Name), Cyan, true), "to emit this task")
+		fmt.Println("Use", colorize.Printc(fmt.Sprintf("emits run %s", task.Name), colorize.Cyan, true), "to emit this task")
 	} else {
-		fmt.Println("Use", color("emits help", Cyan, true), "for more information")
+		fmt.Println("Use", colorize.Printc("emits help", colorize.Cyan, true), "for more information")
 	}
 	fmt.Println("")
 
@@ -162,24 +164,24 @@ func usageUpdate() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println("")
-	fmt.Println(color("emits update", Cyan, true), color("[arguments]", Magenta, true))
+	fmt.Println(colorize.Printc("emits update", colorize.Cyan, true), colorize.Printc("[arguments]", colorize.Magenta, true))
 	fmt.Println("")
 	fmt.Println("The arguments are:")
 	fmt.Println("")
-	fmt.Println(argument("task", "name of the configuration task", Magenta))
+	fmt.Println(argument("task", "name of the configuration task", colorize.Magenta))
 	fmt.Println("")
-	fmt.Println(argument("name", "new name of the configuration task", Magenta))
-	fmt.Println(argument("description", "new description", Magenta))
-	fmt.Println(argument("file-include", "file include patterns", Magenta))
-	fmt.Println(argument("file-exclude", "file exclude patterns", Magenta))
-	fmt.Println(argument("keyword-include", "keyword includes", Magenta))
-	fmt.Println(argument("keyword-exclude", "keyword excludes", Magenta))
-	fmt.Println(argument("configuration-include", "configuration includes", Magenta))
-	fmt.Println(argument("configuration-exclude", "configuration excludes", Magenta))
-	fmt.Println(argument("comment-block-open", "comment block open", Magenta))
-	fmt.Println(argument("comment-block-line", "comment block line", Magenta))
-	fmt.Println(argument("comment-block-close", "comment block close", Magenta))
-	fmt.Println(argument("comment-inline", "comment inline", Magenta))
-	fmt.Println(argument("source", "allow source", Magenta))
+	fmt.Println(argument("name", "new name of the configuration task", colorize.Magenta))
+	fmt.Println(argument("description", "new description", colorize.Magenta))
+	fmt.Println(argument("file-include", "file include patterns", colorize.Magenta))
+	fmt.Println(argument("file-exclude", "file exclude patterns", colorize.Magenta))
+	fmt.Println(argument("keyword-include", "keyword includes", colorize.Magenta))
+	fmt.Println(argument("keyword-exclude", "keyword excludes", colorize.Magenta))
+	fmt.Println(argument("configuration-include", "configuration includes", colorize.Magenta))
+	fmt.Println(argument("configuration-exclude", "configuration excludes", colorize.Magenta))
+	fmt.Println(argument("comment-block-open", "comment block open", colorize.Magenta))
+	fmt.Println(argument("comment-block-line", "comment block line", colorize.Magenta))
+	fmt.Println(argument("comment-block-close", "comment block close", colorize.Magenta))
+	fmt.Println(argument("comment-inline", "comment inline", colorize.Magenta))
+	fmt.Println(argument("source", "allow source", colorize.Magenta))
 	fmt.Println("")
 }

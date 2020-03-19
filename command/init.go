@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
 
@@ -37,9 +38,9 @@ func parseInit() (err error) {
 	reader := bufio.NewReader(os.Stdin)
 	if *noPromptFlag == false {
 		fmt.Println("")
-		fmt.Println(color("This utility will walk you through the most common fields to configure a task", White, true))
+		fmt.Println(colorize.Printc("This utility will walk you through the most common fields to configure a task", colorize.White, true))
 		fmt.Println("")
-		fmt.Println("Use", color("emits help update", Cyan, true), "documentation on all available fields")
+		fmt.Println("Use", colorize.Printc("emits help update", colorize.Cyan, true), "documentation on all available fields")
 		fmt.Println("")
 	}
 	name := strings.ToLower(strings.Replace(*nameFlag, " ", "", -1))
@@ -116,7 +117,7 @@ func parseInit() (err error) {
 	fmt.Println(fmt.Sprintf("%v", string(preview)))
 	fmt.Println("")
 	if *noPromptFlag == false {
-		fmt.Println("Type", color("yes", Red, true), "below to add this task...")
+		fmt.Println("Type", colorize.Printc("yes", colorize.Red, true), "below to add this task...")
 		fmt.Println("")
 	}
 	create := false
@@ -138,9 +139,9 @@ func parseInit() (err error) {
 		if err != nil {
 			return err
 		}
-		fmt.Println("Use", color(fmt.Sprintf("emits run %s%s", color("--task ", Magenta, true), color(task.Name, Magenta, false)), Cyan, true), "to emit this task")
+		fmt.Println("Use", colorize.Printc(fmt.Sprintf("emits run %s%s", colorize.Printc("--task ", colorize.Magenta, true), colorize.Printc(task.Name, colorize.Magenta, false)), colorize.Cyan, true), "to emit this task")
 	} else {
-		fmt.Println("Use", color("emits help", Cyan, true), "for more information")
+		fmt.Println("Use", colorize.Printc("emits help", colorize.Cyan, true), "for more information")
 	}
 	fmt.Println("")
 	return nil
@@ -150,22 +151,22 @@ func usageInit() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println("")
-	fmt.Println(color("emits init", Cyan, true), color("[arguments]", Magenta, true), color("[flags]", Green, true))
+	fmt.Println(colorize.Printc("emits init", colorize.Cyan, true), colorize.Printc("[arguments]", colorize.Magenta, true), colorize.Printc("[flags]", colorize.Green, true))
 	fmt.Println("")
 	fmt.Println("The arguments are:")
 	fmt.Println("")
-	fmt.Println(argument("name", "name of the configuration task", Magenta))
-	fmt.Println(argument("description", "description of the task", Magenta))
-	fmt.Println(argument("include", "space delemited match patterns", Magenta))
-	fmt.Println(argument("exclude", "space delimited match patterns", Magenta))
-	fmt.Println(argument("open", "comment block open characters", Magenta))
-	fmt.Println(argument("line", "comment block line characters", Magenta))
-	fmt.Println(argument("close", "comment block close characters", Magenta))
-	fmt.Println(argument("inline", "comment inline characters", Magenta))
+	fmt.Println(argument("name", "name of the configuration task", colorize.Magenta))
+	fmt.Println(argument("description", "description of the task", colorize.Magenta))
+	fmt.Println(argument("include", "space delemited match patterns", colorize.Magenta))
+	fmt.Println(argument("exclude", "space delimited match patterns", colorize.Magenta))
+	fmt.Println(argument("open", "comment block open characters", colorize.Magenta))
+	fmt.Println(argument("line", "comment block line characters", colorize.Magenta))
+	fmt.Println(argument("close", "comment block close characters", colorize.Magenta))
+	fmt.Println(argument("inline", "comment inline characters", colorize.Magenta))
 	fmt.Println("")
 	fmt.Println("The flags are:")
 	fmt.Println("")
-	fmt.Println(argument("source", "allow source code to be emitted", Green))
-	fmt.Println(argument("no-prompt", "do not promt for confirmation", Green))
+	fmt.Println(argument("source", "allow source code to be emitted", colorize.Green))
+	fmt.Println(argument("no-prompt", "do not promt for confirmation", colorize.Green))
 	fmt.Println("")
 }
