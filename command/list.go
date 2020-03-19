@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
 
@@ -44,10 +45,10 @@ func usageList() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println("")
-	fmt.Println(color("emits list", Cyan, true), color("[flag]", Green, true))
+	//fmt.Println(Colorize("emits list", Cyan, true), Colorize("[flag]", Green, true))
 	fmt.Println("")
 	fmt.Println("The flag is:")
 	fmt.Println("")
-	fmt.Println(argument("description", "output description with task name", Green))
+	fmt.Println(argument("description", "output description with task name", colorize.Green))
 	fmt.Println("")
 }

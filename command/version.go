@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/version"
 )
 
@@ -16,7 +17,7 @@ func usageVersion() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println("")
-	fmt.Println(color("emits version", Cyan, true))
+	fmt.Println(colorize.Printc("emits version", colorize.Cyan, true))
 	fmt.Println("")
 	fmt.Println("Prints the CLI version, operating system and architecture.")
 	fmt.Println("")

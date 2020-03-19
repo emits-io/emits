@@ -8,7 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
 
@@ -35,7 +37,7 @@ func parseServe() (err error) {
 	groupName := strings.ToLower(strings.Replace(*groupFlag, " ", "", -1))
 	if len(taskName) == 0 && len(groupName) == 0 {
 		usageServe()
-		return fmt.Errorf(color("task or group argument is required\n", Red, false))
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("task or group argument is required", colorize.Red, false)))
 	}
 
 	config, err := configuration.Open()
@@ -47,7 +49,7 @@ func parseServe() (err error) {
 
 	if len(groupName) > 0 {
 		if !config.HasGroup(configuration.Group{Name: groupName}) {
-			return fmt.Errorf(fmt.Sprintf("%s %s", color(groupName, Red, false), "is not a valid group"))
+			return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' is not a valid group", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(groupName, colorize.Red, false)))
 		}
 		for _, t := range config.GetGroup(configuration.Group{Name: groupName}).Tasks {
 			task, err := serve(config, t)
@@ -65,7 +67,7 @@ func parseServe() (err error) {
 
 	http.Handle("/", IndexHandler(Index{File: tasks}))
 	fmt.Println("")
-	fmt.Println(fmt.Sprintf("%s:%v", color("http://localhost", Cyan, true), color(fmt.Sprintf("%v", *portFlag), Cyan, true)))
+	fmt.Println(fmt.Sprintf("%s:%v", colorize.Printc("http://localhost", colorize.Cyan, true), colorize.Printc(fmt.Sprintf("%v", *portFlag), colorize.Cyan, true)))
 	fmt.Println("")
 	printExit("", true)
 	http.ListenAndServe(fmt.Sprintf(":%v", *portFlag), nil)
@@ -74,7 +76,7 @@ func parseServe() (err error) {
 
 func serve(config configuration.File, name string) (taskName string, err error) {
 	if !config.HasTask(configuration.Task{Name: name}) {
-		return "", fmt.Errorf(fmt.Sprintf("%s %s", color(name, Red, false), "is not a valid task"))
+		return "", fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v' is not a valid task", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(name, colorize.Red, false)))
 	}
 	task := config.GetTask(configuration.Task{Name: name})
 	http.Handle(fmt.Sprintf("%s%s%s%s%s", string(os.PathSeparator), emits, string(os.PathSeparator), task.Name, string(os.PathSeparator)), AllowHandler())
@@ -143,12 +145,12 @@ func usageServe() {
 	fmt.Println("")
 	fmt.Println("Usage:")
 	fmt.Println("")
-	fmt.Println(color("emits serve", Cyan, true), color("[arguments]", Magenta, true))
+	fmt.Println(colorize.Printc("emits serve", colorize.Cyan, true), colorize.Printc("[arguments]", colorize.Magenta, true))
 	fmt.Println("")
 	fmt.Println("The arguments are:")
 	fmt.Println("")
-	fmt.Println(argument("task", "name of the configuration task", Magenta))
-	fmt.Println(argument("group", "name of the configuration group", Magenta))
-	fmt.Println(argument("port", "port to serve the task files", Magenta))
+	fmt.Println(argument("task", "name of the configuration task", colorize.Magenta))
+	fmt.Println(argument("group", "name of the configuration group", colorize.Magenta))
+	fmt.Println(argument("port", "port to serve the task files", colorize.Magenta))
 	fmt.Println("")
 }
