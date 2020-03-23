@@ -19,6 +19,8 @@ type Index struct {
 	File []string `json:"file"`
 }
 
+var baseServerURI = ""
+
 func parseServe() (err error) {
 
 	helpFlag := flag.Bool("h", false, "")
@@ -66,10 +68,9 @@ func parseServe() (err error) {
 	}
 
 	http.Handle("/", IndexHandler(Index{File: tasks}))
+	baseServerURI = fmt.Sprintf("%s:%v", "http://localhost", *portFlag)
 	fmt.Println("")
-	fmt.Println(fmt.Sprintf("%s:%v", colorize.Printc("http://localhost", colorize.Cyan, true), colorize.Printc(fmt.Sprintf("%v", *portFlag), colorize.Cyan, true)))
-	fmt.Println("")
-	printExit("", true)
+	printWithExit(fmt.Sprintf("[%s] Serving Files '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Green, false), colorize.Printc(baseServerURI, colorize.Green, false)))
 	http.ListenAndServe(fmt.Sprintf(":%v", *portFlag), nil)
 	return nil
 }
@@ -83,18 +84,12 @@ func serve(config configuration.File, name string) (taskName string, err error) 
 	return name, nil
 }
 
-func printExit(line string, prefixSpace bool) {
-	if prefixSpace {
-		fmt.Println("")
-	} else {
-		fmt.Print("\r\033[1A\033[0K")
-	}
+func printWithExit(line string) {
 	if len(line) > 0 {
 		fmt.Print("\r\033[1A\033[0K")
 		fmt.Println(line)
-		fmt.Println("")
 	}
-	fmt.Println("Exit this utility to stop the server...")
+	fmt.Println(fmt.Sprintf("[%s] Pending Serve '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc("exit this command to stop the server", colorize.Yellow, false)))
 }
 
 // AllowHandler is a restrictive http handler that only serves .json files from a relative emits directory.
@@ -104,9 +99,11 @@ func AllowHandler() http.Handler {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
 		var p = fmt.Sprintf(".%s", filepath.Clean(r.URL.String()))
 		if jsonExists(p) {
+			printWithExit(fmt.Sprintf("[%s] Serve Success '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Green, false), colorize.Printc(fmt.Sprintf("%s%s", baseServerURI, r.RequestURI), colorize.Green, false)))
 			http.ServeFile(w, r, p)
 			return
 		}
+		printWithExit(fmt.Sprintf("[%s] Serve Failure '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(fmt.Sprintf("%s%s", baseServerURI, r.RequestURI), colorize.Red, false)))
 		http.Error(w, "", 500)
 		return
 	})
