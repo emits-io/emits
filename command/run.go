@@ -28,17 +28,17 @@ func parseRun() (err error) {
 	flagSet.BoolVar(helpFlag, "help", false, "")
 	flagSet.Parse(os.Args[2:])
 
+	config, err := configuration.Open(true)
+	if err != nil {
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(err.Error(), colorize.Red, false)))
+	}
+
 	taskName := strings.ToLower(strings.Replace(*taskFlag, " ", "", -1))
 	groupName := strings.ToLower(strings.Replace(*groupFlag, " ", "", -1))
 
 	if len(taskName) == 0 && len(groupName) == 0 {
 		usageRun()
 		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("task or group argument is required", colorize.Red, false)))
-	}
-
-	config, err := configuration.Open()
-	if err != nil {
-		return err
 	}
 
 	if len(groupName) > 0 {
@@ -93,29 +93,40 @@ func run(config configuration.File, name string, outputFlag *string) (err error)
 	}
 	index := configuration.Index{}
 	indexFilePath := filepath.Join(output, "emits.json")
-	for _, file := range matches {
-		filePath := filepath.Join(file)
-		err := data.Write(filePath, task, cache, output)
-		if err != nil {
-			fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("./"+filePath, colorize.Red, false)))
-		} else {
-			filename := filepath.Join(output, filePath+".json")
-			index.Files = append(index.Files, filename)
-			fmt.Println(fmt.Sprintf("[%s] Emitting File '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc("./"+filename, colorize.Yellow, false)))
+	if len(matches) != 0 {
+
+		for _, file := range matches {
+			filePath := filepath.Join(file)
+			err := data.Write(filePath, task, cache, output)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("./"+filePath, colorize.Red, false)))
+			} else {
+				filename := filepath.Join(output, filePath+".json")
+				index.Files = append(index.Files, filename)
+				fmt.Println(fmt.Sprintf("[%s] Emitting File '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc("./"+filename, colorize.Yellow, false)))
+			}
 		}
-	}
-	file, err := json.MarshalIndent(index, "", "\t")
-	if err != nil {
-		fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("./"+indexFilePath, colorize.Red, false)))
-	} else {
-		err = ioutil.WriteFile(indexFilePath, file, 0644)
+		file, err := json.MarshalIndent(index, "", "\t")
 		if err != nil {
 			fmt.Println(fmt.Sprintf("[%s] Writing Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("./"+indexFilePath, colorize.Red, false)))
 		} else {
-			t := time.Now()
-			elapsed := t.Sub(start)
-			fmt.Println(fmt.Sprintf("[%s] Finished Task '%v' after %v", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc(task.Name, colorize.Yellow, false), elapsed))
+			err = ioutil.WriteFile(indexFilePath, file, 0644)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("[%s] Writing Error '%v' - %v", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("./"+indexFilePath, colorize.Red, false), err.Error()))
+			} else {
+				t := time.Now()
+				elapsed := t.Sub(start)
+				plural := "s"
+				if len(matches) == 1 {
+					plural = ""
+				}
+				fmt.Println(fmt.Sprintf("[%s] Finished Task '%v' with %v after %v", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc(task.Name, colorize.Yellow, false), fmt.Sprintf("%v file%s", len(matches), plural), elapsed))
+			}
 		}
+	} else {
+		t := time.Now()
+		elapsed := t.Sub(start)
+		fmt.Println(fmt.Sprintf("[%s] Finished Task '%v' with %v after %v", colorize.Printc(time.Now().Format(time.Stamp), colorize.Yellow, false), colorize.Printc(task.Name, colorize.Yellow, false), "no files", elapsed))
 	}
 	return nil
 }

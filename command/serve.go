@@ -35,16 +35,16 @@ func parseServe() (err error) {
 	flagSet.BoolVar(helpFlag, "help", false, "")
 	flagSet.Parse(os.Args[2:])
 
+	config, err := configuration.Open(true)
+	if err != nil {
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(err.Error(), colorize.Red, false)))
+	}
+
 	taskName := strings.ToLower(strings.Replace(*taskFlag, " ", "", -1))
 	groupName := strings.ToLower(strings.Replace(*groupFlag, " ", "", -1))
 	if len(taskName) == 0 && len(groupName) == 0 {
 		usageServe()
 		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc("task or group argument is required", colorize.Red, false)))
-	}
-
-	config, err := configuration.Open()
-	if err != nil {
-		return err
 	}
 
 	var tasks []string

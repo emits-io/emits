@@ -95,8 +95,11 @@ func deduplicate(values []string) (santized []string) {
 }
 
 // Open func
-func Open() (file File, err error) {
-	err = file.unmarshal()
+func Open(errorIfNotExists bool) (file File, err error) {
+	err = file.unmarshal(errorIfNotExists)
+	if err != nil {
+		return file, err
+	}
 
 	// Santize
 	for i, t := range file.Tasks {
@@ -109,9 +112,12 @@ func Open() (file File, err error) {
 }
 
 // Unmarshal func
-func (f *File) unmarshal() (err error) {
+func (f *File) unmarshal(errorIfNotExists bool) (err error) {
 
 	if !f.exists() {
+		if errorIfNotExists {
+			return fmt.Errorf("emits.json file does not exist")
+		}
 		err := f.initialize()
 		if err != nil {
 			return err
