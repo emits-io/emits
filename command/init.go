@@ -7,15 +7,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
 )
 
 func parseInit() (err error) {
-	config, err := configuration.Open()
+	config, err := configuration.Open(false)
 	if err != nil {
-		return err
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(err.Error(), colorize.Red, false)))
 	}
 	helpFlag := flag.Bool("h", false, "")
 	flagSet := flag.NewFlagSet("init", flag.ExitOnError)

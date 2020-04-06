@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/emits-io/emits/colorize"
 	"github.com/emits-io/emits/configuration"
@@ -21,9 +22,9 @@ func parseList() (err error) {
 	flagSet.BoolVar(helpFlag, "help", false, "")
 	flagSet.Parse(os.Args[2:])
 
-	config, err := configuration.Open()
+	config, err := configuration.Open(true)
 	if err != nil {
-		return err
+		return fmt.Errorf(fmt.Sprintf("[%s] Runtime Error '%v'", colorize.Printc(time.Now().Format(time.Stamp), colorize.Red, false), colorize.Printc(err.Error(), colorize.Red, false)))
 	}
 
 	fmt.Println("")
